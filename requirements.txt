@@ -1,0 +1,2 @@
+openai>=2.24.0
+pydantic-monty>=0.0.11

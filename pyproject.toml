@@ -1,0 +1,10 @@
+[project]
+name = "monty-example"
+version = "0.1.0"
+description = "Shows sandboxed tool calling using Pydantic Monty."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "openai>=2.24.0",
+    "pydantic-monty>=0.0.11",
+]
