@@ -1,8 +1,7 @@
 # Callables — LLM + Monty Tool Calling
 
 Demonstrates a conversation pattern for safely executing LLM-generated
-Python code that calls host-side tool functions via Monty.  Turns that
-need new data use three phases; turns answered from context use one.
+Python code that calls host-side tool functions via [Monty](https://github.com/pydantic/monty). Monty is a Rust-based sandboxed Python runtime that compiles a subset of Python source into an internal bytecode format and interprets it in its own VM. When embedded, it runs in-process on the calling thread.
 
 ## How it works
 
