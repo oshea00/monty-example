@@ -239,17 +239,23 @@ Assistant: Here are the total flight expenses by member:
 
 ---
 
-Session totals for this 7-turn conversation:
+Session totals for conversation:
 
 ```
-SESSION TOTALS — 7 turns | 55,358 tokens total (code-gen: 3,351  non-code: 52,007) | 77.75s LLM | 0.008s code
+This table summarizes the total amount spent on flight-related expenses for each member.
+[13:41:33] TURN STATS:
+  phase 1 :  2,705 tokens (2567p + 138c)  2.49s LLM
+  subtotal:  2,705 tokens  (code-gen: 0  non-code: 2,705)  2.49s LLM  0.000s code
+
+SESSION TOTALS — 6 turns | 12,609 tokens total (code-gen: 2,380  non-code: 10,229) | 40.08s LLM | 0.013s code
 ```
 
-The low code-gen token count (3,351 out of 55,358) reflects that data was
+The low code-gen token count (2,380 out of 12,609) reflects that data was
 fetched only when genuinely needed.  The bulk of the tokens are in Phase 1
 (which handles both tool-discovery and direct answers) and Phase 3 (final
 answer on turns that fetched new data), where the growing conversation
-history is passed to the model.
+history is passed to the model.  Performance-wise, almost all runtime was LLM
+latency (40.08s) while code execution remained negligible (0.013s).
 
 ---
 
