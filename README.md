@@ -20,8 +20,11 @@ Phase 1 — Tool discovery (and direct answer when no tools needed)
     ▼ only if new data is needed
 Phase 2 — Code generation + Monty execution
     Ask the model to write Python code using the full set of tool type stubs.
-    The model decides for itself which functions to call and how to combine
-    results.
+    The prompt includes the Phase 1 tool calls with their already-resolved
+    arguments (e.g. a member name looked up from conversation history becomes
+    a concrete user_id), so the model can use those values directly rather
+    than issuing redundant lookups. The model still has access to all tool
+    stubs and can call additional functions if needed.
 
     Execute code in the Monty sandbox → calls back to real host functions.
     If the generated code fails to compile or run, the error is fed back

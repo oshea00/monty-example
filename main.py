@@ -377,6 +377,7 @@ _MAX_CODE_RETRIES = 4
 
 async def phase2_generate_and_execute(
     prompt: str,
+    tool_calls: list[dict[str, object]],
     client: AsyncOpenAI,
     log: SessionLog,
 ) -> str:
@@ -393,6 +394,9 @@ async def phase2_generate_and_execute(
 
     Args:
         prompt: The original user question.
+        tool_calls: Tool calls identified by Phase 1, with already-resolved
+            arguments (e.g. resolved user IDs, names).  Used as a hint to avoid
+            redundant lookups in the generated code.
         client: Async OpenAI client.
         log: Session log to record generated code, errors, and results.
 
@@ -404,11 +408,23 @@ async def phase2_generate_and_execute(
         ValueError: If the model did not return a code block, or if Monty
             fails to compile or execute the generated code on all attempts.
     """
+    calls_hint = "\n".join(
+        "  - {}({})".format(
+            tc["name"],
+            ", ".join(f"{k}={v!r}" for k, v in tc["arguments"].items()),  # type: ignore[union-attr]
+        )
+        for tc in tool_calls
+    )
     code_prompt = (
         f"User question: {prompt}\n\n"
+        f"Phase 1 identified these tool calls as a starting point "
+        f"(arguments already resolved from conversation context):\n"
+        f"{calls_hint}\n\n"
         "Using the available functions listed above, fetch all data needed "
         "to answer the question, then filter and process the results so the "
-        "returned value directly answers the question.\n\n"
+        "returned value directly answers the question. "
+        "Prefer using the Phase 1 argument values directly — avoid redundant "
+        "lookups to resolve IDs or names that are already provided above.\n\n"
         "Write the code now."
     )
 
@@ -558,7 +574,7 @@ async def run_turn(
     if isinstance(phase1_result, list):
         print("[phase 2] generating and executing code…", flush=True)
         try:
-            context = await phase2_generate_and_execute(prompt, client, log)
+            context = await phase2_generate_and_execute(prompt, phase1_result, client, log)
         except ValueError as exc:
             # Surface the error so the user sees it; still proceed to Phase 3
             # with an error context so the model can acknowledge the failure.
