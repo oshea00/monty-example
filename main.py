@@ -92,10 +92,7 @@ Reply with ONLY a fenced ```python code block and nothing else.\
 _FINAL_SYSTEM = (
     "You are a helpful assistant analysing team expense data. "
     "Answer the user's question concisely and precisely, using the "
-    "data provided in the <tool_results> block as your source of truth. "
-    "The data-fetching functions available to you are: "
-    + ", ".join(f"`{name}`" for name in tools.TOOL_FUNCTIONS)
-    + "."
+    "data provided in the <tool_results> block as your source of truth."
 )
 
 
@@ -312,6 +309,11 @@ class Conversation:
 # ---------------------------------------------------------------------------
 
 
+def _build_user_context(prompt: str, context: str) -> str:
+    """Combine *prompt* with tool results into the augmented user message."""
+    return f"{prompt}\n\n<tool_results>\n{context}\n</tool_results>"
+
+
 def _extract_code(text: str) -> str | None:
     """Extract the first ```python (or ```py) fenced code block from *text*.
 
@@ -503,7 +505,7 @@ async def phase3_final_response(
     Returns:
         The assistant's final reply as a plain string.
     """
-    augmented = f"{prompt}\n\n<tool_results>\n{context}\n</tool_results>"
+    augmented = _build_user_context(prompt, context)
     t0 = time.monotonic()
     response = await client.chat.completions.create(
         model=MODEL,
@@ -564,7 +566,7 @@ async def run_turn(
             context = f"Error fetching data: {exc}"
 
         print("[phase 3] generating final response…", flush=True)
-        user_content = f"{prompt}\n\n<tool_results>\n{context}\n</tool_results>"
+        user_content = _build_user_context(prompt, context)
         reply = await phase3_final_response(prompt, context, conversation, client, log)
     else:
         # No tools needed — Phase 1 already answered directly, reuse its response.
