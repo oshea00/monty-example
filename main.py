@@ -50,7 +50,10 @@ _PHASE1_SYSTEM = (
     "You are a helpful assistant that analyses team expense data. "
     "First check the conversation history — if ALL the data needed to answer the "
     "user's question is already present (e.g. in prior <tool_results> blocks), "
-    "answer directly using that data without calling any tools. "
+    "answer directly using that data without calling any tools, UNLESS the question "
+    "requires aggregation or arithmetic (e.g. totals, sums, averages) — in that case "
+    "always call sum_amounts rather than computing inline, even when the data is "
+    "already in context. "
     "When tool calls are needed, apply an all-or-nothing rule for entity coverage: "
     "if the question requires data for a set of entities (e.g. all team members), "
     "either the COMPLETE set is already in context (answer directly) or you must "
@@ -394,6 +397,7 @@ _MAX_CODE_RETRIES = 4
 async def phase2_generate_and_execute(
     prompt: str,
     tool_calls: list[dict[str, object]],
+    conversation: Conversation,
     client: AsyncOpenAI,
     log: SessionLog,
 ) -> str:
@@ -413,6 +417,8 @@ async def phase2_generate_and_execute(
         tool_calls: Tool calls identified by Phase 1, with already-resolved
             arguments (e.g. resolved user IDs, names).  Used as a hint to avoid
             redundant lookups in the generated code.
+        conversation: Rolling conversation history (including prior <tool_results>)
+            passed through to the model so it has full context for code generation.
         client: Async OpenAI client.
         log: Session log to record generated code, errors, and results.
 
@@ -444,10 +450,7 @@ async def phase2_generate_and_execute(
         "Write the code now."
     )
 
-    messages: list[dict[str, str]] = [
-        {"role": "system", "content": _CODE_GEN_SYSTEM},
-        {"role": "user", "content": code_prompt},
-    ]
+    messages = conversation.messages(_CODE_GEN_SYSTEM, code_prompt)
 
     last_error: str = ""
     for attempt in range(1, _MAX_CODE_RETRIES + 1):
@@ -615,7 +618,7 @@ async def run_turn(
         print("[phase 2] generating and executing code…", flush=True)
         try:
             context = await phase2_generate_and_execute(
-                prompt, phase1_result, client, log
+                prompt, phase1_result, conversation, client, log
             )
         except ValueError as exc:
             # Surface the error so the user sees it; still proceed to Phase 3

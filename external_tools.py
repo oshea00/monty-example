@@ -27,68 +27,68 @@ team_members = [
 
 expenses: dict[int, list[dict[str, Any]]] = {
     1: [  # Alice — under budget
-        {"date": "2024-07-15", "amount": 450.00, "description": "Flight to NYC"},
-        {"date": "2024-07-16", "amount": 200.00, "description": "Hotel NYC"},
-        {"date": "2024-07-17", "amount": 85.00, "description": "Meals NYC"},
-        {"date": "2024-08-20", "amount": 380.00, "description": "Flight to Chicago"},
-        {"date": "2024-08-21", "amount": 175.00, "description": "Hotel Chicago"},
-        {"date": "2024-09-05", "amount": 520.00, "description": "Flight to Seattle"},
-        {"date": "2024-09-06", "amount": 225.00, "description": "Hotel Seattle"},
-        {"date": "2024-09-07", "amount": 95.00, "description": "Meals Seattle"},
+        {"date": "2024-07-15", "amount": 450.00, "description": "Flight to NYC",      "category": "flight"},
+        {"date": "2024-07-16", "amount": 200.00, "description": "Hotel NYC",           "category": "hotel"},
+        {"date": "2024-07-17", "amount": 85.00,  "description": "Meals NYC",           "category": "meals"},
+        {"date": "2024-08-20", "amount": 380.00, "description": "Flight to Chicago",   "category": "flight"},
+        {"date": "2024-08-21", "amount": 175.00, "description": "Hotel Chicago",       "category": "hotel"},
+        {"date": "2024-09-05", "amount": 520.00, "description": "Flight to Seattle",   "category": "flight"},
+        {"date": "2024-09-06", "amount": 225.00, "description": "Hotel Seattle",       "category": "hotel"},
+        {"date": "2024-09-07", "amount": 95.00,  "description": "Meals Seattle",       "category": "meals"},
     ],
     2: [  # Bob — over standard budget but has a custom budget
-        {"date": "2024-07-01", "amount": 850.00, "description": "Flight to London"},
-        {"date": "2024-07-02", "amount": 450.00, "description": "Hotel London"},
-        {"date": "2024-07-03", "amount": 125.00, "description": "Meals London"},
-        {"date": "2024-07-04", "amount": 450.00, "description": "Hotel London"},
-        {"date": "2024-07-05", "amount": 120.00, "description": "Meals London"},
-        {"date": "2024-08-10", "amount": 780.00, "description": "Flight to Tokyo"},
-        {"date": "2024-08-11", "amount": 380.00, "description": "Hotel Tokyo"},
-        {"date": "2024-08-12", "amount": 380.00, "description": "Hotel Tokyo"},
-        {"date": "2024-08-13", "amount": 150.00, "description": "Meals Tokyo"},
-        {"date": "2024-09-15", "amount": 920.00, "description": "Flight to Singapore"},
-        {"date": "2024-09-16", "amount": 320.00, "description": "Hotel Singapore"},
-        {"date": "2024-09-17", "amount": 320.00, "description": "Hotel Singapore"},
-        {"date": "2024-09-18", "amount": 180.00, "description": "Meals Singapore"},
+        {"date": "2024-07-01", "amount": 850.00, "description": "Flight to London",    "category": "flight"},
+        {"date": "2024-07-02", "amount": 450.00, "description": "Hotel London",        "category": "hotel"},
+        {"date": "2024-07-03", "amount": 125.00, "description": "Meals London",        "category": "meals"},
+        {"date": "2024-07-04", "amount": 450.00, "description": "Hotel London",        "category": "hotel"},
+        {"date": "2024-07-05", "amount": 120.00, "description": "Meals London",        "category": "meals"},
+        {"date": "2024-08-10", "amount": 780.00, "description": "Flight to Tokyo",     "category": "flight"},
+        {"date": "2024-08-11", "amount": 380.00, "description": "Hotel Tokyo",         "category": "hotel"},
+        {"date": "2024-08-12", "amount": 380.00, "description": "Hotel Tokyo",         "category": "hotel"},
+        {"date": "2024-08-13", "amount": 150.00, "description": "Meals Tokyo",         "category": "meals"},
+        {"date": "2024-09-15", "amount": 920.00, "description": "Flight to Singapore", "category": "flight"},
+        {"date": "2024-09-16", "amount": 320.00, "description": "Hotel Singapore",     "category": "hotel"},
+        {"date": "2024-09-17", "amount": 320.00, "description": "Hotel Singapore",     "category": "hotel"},
+        {"date": "2024-09-18", "amount": 180.00, "description": "Meals Singapore",     "category": "meals"},
     ],
     3: [  # Carol — way over budget, no custom budget
-        {"date": "2024-07-08", "amount": 1200.00, "description": "Flight to Paris"},
-        {"date": "2024-07-09", "amount": 550.00, "description": "Hotel Paris"},
-        {"date": "2024-07-10", "amount": 550.00, "description": "Hotel Paris"},
-        {"date": "2024-07-11", "amount": 550.00, "description": "Hotel Paris"},
-        {"date": "2024-07-12", "amount": 200.00, "description": "Meals Paris"},
-        {"date": "2024-08-25", "amount": 1100.00, "description": "Flight to Sydney"},
-        {"date": "2024-08-26", "amount": 480.00, "description": "Hotel Sydney"},
-        {"date": "2024-08-27", "amount": 480.00, "description": "Hotel Sydney"},
-        {"date": "2024-08-28", "amount": 480.00, "description": "Hotel Sydney"},
-        {"date": "2024-08-29", "amount": 220.00, "description": "Meals Sydney"},
-        {"date": "2024-09-20", "amount": 650.00, "description": "Flight to Denver"},
-        {"date": "2024-09-21", "amount": 280.00, "description": "Hotel Denver"},
+        {"date": "2024-07-08", "amount": 1200.00, "description": "Flight to Paris",   "category": "flight"},
+        {"date": "2024-07-09", "amount": 550.00,  "description": "Hotel Paris",       "category": "hotel"},
+        {"date": "2024-07-10", "amount": 550.00,  "description": "Hotel Paris",       "category": "hotel"},
+        {"date": "2024-07-11", "amount": 550.00,  "description": "Hotel Paris",       "category": "hotel"},
+        {"date": "2024-07-12", "amount": 200.00,  "description": "Meals Paris",       "category": "meals"},
+        {"date": "2024-08-25", "amount": 1100.00, "description": "Flight to Sydney",  "category": "flight"},
+        {"date": "2024-08-26", "amount": 480.00,  "description": "Hotel Sydney",      "category": "hotel"},
+        {"date": "2024-08-27", "amount": 480.00,  "description": "Hotel Sydney",      "category": "hotel"},
+        {"date": "2024-08-28", "amount": 480.00,  "description": "Hotel Sydney",      "category": "hotel"},
+        {"date": "2024-08-29", "amount": 220.00,  "description": "Meals Sydney",      "category": "meals"},
+        {"date": "2024-09-20", "amount": 650.00,  "description": "Flight to Denver",  "category": "flight"},
+        {"date": "2024-09-21", "amount": 280.00,  "description": "Hotel Denver",      "category": "hotel"},
     ],
     4: [  # David — slightly under budget
-        {"date": "2024-07-22", "amount": 420.00, "description": "Flight to Boston"},
-        {"date": "2024-07-23", "amount": 190.00, "description": "Hotel Boston"},
-        {"date": "2024-07-24", "amount": 75.00, "description": "Meals Boston"},
-        {"date": "2024-08-05", "amount": 510.00, "description": "Flight to Austin"},
-        {"date": "2024-08-06", "amount": 210.00, "description": "Hotel Austin"},
-        {"date": "2024-08-07", "amount": 90.00, "description": "Meals Austin"},
-        {"date": "2024-09-12", "amount": 480.00, "description": "Flight to Portland"},
-        {"date": "2024-09-13", "amount": 195.00, "description": "Hotel Portland"},
-        {"date": "2024-09-14", "amount": 85.00, "description": "Meals Portland"},
+        {"date": "2024-07-22", "amount": 420.00, "description": "Flight to Boston",   "category": "flight"},
+        {"date": "2024-07-23", "amount": 190.00, "description": "Hotel Boston",       "category": "hotel"},
+        {"date": "2024-07-24", "amount": 75.00,  "description": "Meals Boston",       "category": "meals"},
+        {"date": "2024-08-05", "amount": 510.00, "description": "Flight to Austin",   "category": "flight"},
+        {"date": "2024-08-06", "amount": 210.00, "description": "Hotel Austin",       "category": "hotel"},
+        {"date": "2024-08-07", "amount": 90.00,  "description": "Meals Austin",       "category": "meals"},
+        {"date": "2024-09-12", "amount": 480.00, "description": "Flight to Portland", "category": "flight"},
+        {"date": "2024-09-13", "amount": 195.00, "description": "Hotel Portland",     "category": "hotel"},
+        {"date": "2024-09-14", "amount": 85.00,  "description": "Meals Portland",     "category": "meals"},
     ],
     5: [  # Eve — over standard budget, no custom budget
-        {"date": "2024-07-03", "amount": 680.00, "description": "Flight to Miami"},
-        {"date": "2024-07-04", "amount": 320.00, "description": "Hotel Miami"},
-        {"date": "2024-07-05", "amount": 320.00, "description": "Hotel Miami"},
-        {"date": "2024-07-06", "amount": 145.00, "description": "Meals Miami"},
-        {"date": "2024-08-18", "amount": 750.00, "description": "Flight to San Diego"},
-        {"date": "2024-08-19", "amount": 290.00, "description": "Hotel San Diego"},
-        {"date": "2024-08-20", "amount": 290.00, "description": "Hotel San Diego"},
-        {"date": "2024-08-21", "amount": 130.00, "description": "Meals San Diego"},
-        {"date": "2024-09-08", "amount": 820.00, "description": "Flight to Las Vegas"},
-        {"date": "2024-09-09", "amount": 380.00, "description": "Hotel Las Vegas"},
-        {"date": "2024-09-10", "amount": 380.00, "description": "Hotel Las Vegas"},
-        {"date": "2024-09-11", "amount": 175.00, "description": "Meals Las Vegas"},
+        {"date": "2024-07-03", "amount": 680.00, "description": "Flight to Miami",      "category": "flight"},
+        {"date": "2024-07-04", "amount": 320.00, "description": "Hotel Miami",          "category": "hotel"},
+        {"date": "2024-07-05", "amount": 320.00, "description": "Hotel Miami",          "category": "hotel"},
+        {"date": "2024-07-06", "amount": 145.00, "description": "Meals Miami",          "category": "meals"},
+        {"date": "2024-08-18", "amount": 750.00, "description": "Flight to San Diego",  "category": "flight"},
+        {"date": "2024-08-19", "amount": 290.00, "description": "Hotel San Diego",      "category": "hotel"},
+        {"date": "2024-08-20", "amount": 290.00, "description": "Hotel San Diego",      "category": "hotel"},
+        {"date": "2024-08-21", "amount": 130.00, "description": "Meals San Diego",      "category": "meals"},
+        {"date": "2024-09-08", "amount": 820.00, "description": "Flight to Las Vegas",  "category": "flight"},
+        {"date": "2024-09-09", "amount": 380.00, "description": "Hotel Las Vegas",      "category": "hotel"},
+        {"date": "2024-09-10", "amount": 380.00, "description": "Hotel Las Vegas",      "category": "hotel"},
+        {"date": "2024-09-11", "amount": 175.00, "description": "Meals Las Vegas",      "category": "meals"},
     ],
 }
 
@@ -115,19 +115,34 @@ async def get_team_members(department: str) -> dict[str, Any]:
     return {"department": department, "members": team_members}
 
 
-async def get_expenses(user_id: int, quarter: str, category: str) -> dict[str, Any]:
+_QUARTER_MONTHS: dict[str, set[int]] = {
+    "Q1": {1, 2, 3},
+    "Q2": {4, 5, 6},
+    "Q3": {7, 8, 9},
+    "Q4": {10, 11, 12},
+}
+
+
+async def get_expenses(user_id: int, quarter: str = "", category: str = "") -> dict[str, Any]:
     """Get expense line items for a specific team member.
 
     Args:
         user_id: The member's numeric ID.
-        quarter: The quarter label (e.g. 'Q3').
-        category: The expense category (e.g. 'travel').
+        quarter: Optional quarter filter (e.g. 'Q3'). Items are matched by the
+            month of their date field. Omit or pass an empty string for all quarters.
+        category: Optional subcategory filter ('flight', 'hotel', 'meals').
+            Omit or pass an empty string to return all items.
 
     Returns:
         A dict with keys 'user_id', 'quarter', 'category', and 'expenses'
-        (list of {date, amount, description}).
+        (list of {date, amount, description, category}).
     """
     items = expenses.get(user_id, [])
+    if quarter in _QUARTER_MONTHS:
+        months = _QUARTER_MONTHS[quarter]
+        items = [e for e in items if int(e["date"].split("-")[1]) in months]
+    if category:
+        items = [e for e in items if e["category"] == category]
     return {
         "user_id": user_id,
         "quarter": quarter,

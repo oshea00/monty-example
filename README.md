@@ -53,6 +53,9 @@ The Monty VM does not have direct access to networking or OS I/O, although I/O c
 
 The resulting tool executions are often faster because the LLM doesn’t have to round-trip on every intermediate step: the orchestration logic is in Monty code, and the host can run the dispatch loop without involving the model.
 
+## Demo session
+<video src="images/output.mp4" controls width="800"></video>
+
 ## Session logging
 
 Every run writes a timestamped `session_YYYYMMDD_HHMMSS.log` file recording:
@@ -342,7 +345,7 @@ combinations.
 parameter is accepted but not yet filtering, document that clearly so the
 model does not over-fetch defensively.
 
-**Note:** I have left external_tools.py with the misleading elements described
+**Note:** I have fixed external_tools.py with the misleading elements described
 above for this example to help illustrate the need for good hygiene around tool
 function documentation and type hints.
 
