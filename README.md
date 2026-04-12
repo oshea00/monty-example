@@ -37,6 +37,11 @@ Conversation history retains only the (possibly augmented) user
 prompt and the assistant reply — keeping context compact.
 ```
 
+## Flowchart
+
+![processflow](images/flowchart.png)
+
+
 ## Why this approach instead of direct tool calling?
 
 Standard OpenAI tool calling executes one tool call at a time, round-tripping to the model after each result. The Monty approach lets the model write arbitrarily complex orchestration logic — loops, parallel asyncio.gather calls, aggregations — that runs entirely in the sandbox. The host executes and mediates any intermediate external calls, but the model only needs to see the final computed result. This makes it practical for questions that require fetching data for every team member in parallel and then doing analysis over the combined results using an LLM model.
