@@ -65,7 +65,7 @@ dict or list summarising the answer.
 
 Available functions (type stubs):
 ```python
-{tools.TYPE_STUBS}
+{tools.MONTY_TOOLS}
 ```
 
 Rules:
@@ -121,8 +121,8 @@ class SessionLog:
         # Session-level accumulators
         self._s_turns = 0
         self._s_tokens = 0
-        self._s_code_gen_tokens = 0   # Phase 2 LLM tokens only
-        self._s_non_code_tokens = 0   # Phase 1 + Phase 3 tokens
+        self._s_code_gen_tokens = 0  # Phase 2 LLM tokens only
+        self._s_non_code_tokens = 0  # Phase 1 + Phase 3 tokens
         self._s_llm = 0.0
         self._s_code = 0.0
 
@@ -465,7 +465,7 @@ async def phase2_generate_and_execute(
 
         # Compile — catches syntax and type errors before running.
         try:
-            m = Monty(code, type_check=True, type_check_stubs=tools.TYPE_STUBS)
+            m = Monty(code, type_check=True, type_check_stubs=tools.MONTY_TOOLS)
         except MontyError as exc:
             last_error = f"Monty compile error: {exc}"
             log.phase2_error(attempt, last_error)
@@ -581,7 +581,9 @@ async def run_turn(
     if isinstance(phase1_result, list):
         print("[phase 2] generating and executing code…", flush=True)
         try:
-            context = await phase2_generate_and_execute(prompt, phase1_result, client, log)
+            context = await phase2_generate_and_execute(
+                prompt, phase1_result, client, log
+            )
         except ValueError as exc:
             # Surface the error so the user sees it; still proceed to Phase 3
             # with an error context so the model can acknowledge the failure.
