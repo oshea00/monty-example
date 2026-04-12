@@ -48,11 +48,14 @@ MODEL = "gpt-4o-mini"
 # System prompt used for Phase 1 (tool-discovery pass).
 _PHASE1_SYSTEM = (
     "You are a helpful assistant that analyses team expense data. "
-    "First check the conversation history — if the data needed to answer the "
-    "user's question is already present (e.g. in a prior <tool_results> block), "
+    "First check the conversation history — if ALL the data needed to answer the "
+    "user's question is already present (e.g. in prior <tool_results> blocks), "
     "answer directly using that data without calling any tools. "
-    "Only call tools when genuinely new data is required that is not already "
-    "in the conversation."
+    "When tool calls are needed, apply an all-or-nothing rule for entity coverage: "
+    "if the question requires data for a set of entities (e.g. all team members), "
+    "either the COMPLETE set is already in context (answer directly) or you must "
+    "fetch ALL of them — never issue tool calls for only a subset of entities "
+    "because some are already in context."
 )
 
 # System prompt injected into Phase 2 to guide code generation.
@@ -74,8 +77,11 @@ Rules:
   independent calls.
 - The *last expression* in the code is the return value — do NOT use `return`,
   and do NOT end with an assignment (e.g. `result = x` returns null; write
-  just `x` as the final line instead).
-- Do NOT define functions or classes — write all logic as flat top-level async code.
+  just `x` as the final line instead). The result must NEVER be null/None —
+  always return a dict or list.
+- NEVER use `def` or `async def` — not even a helper. Every `await` must
+  appear at the top level. If you need to gather results, call
+  `asyncio.gather(...)` directly at the top level, not inside a function.
 - You may NOT import third-party libraries.
 - Available stdlib: builtins, `sys`, `typing`, `asyncio`, `json`, `re`, `math`,
   `datetime`, `collections`, `itertools`, `functools`.
@@ -84,6 +90,9 @@ Rules:
   case-insensitive substring matching: `'term' in field.lower()`. Never use `==`
   to match a name or keyword — the data may contain full names like 'Bob Smith'
   where an equality check against 'bob' would silently return nothing.
+- Always compute totals and subtotals using `sum_amounts` and include them in the
+  returned dict or list. Never leave arithmetic to the final answer phase — if you
+  return a list of expense items, wrap it: `{{"items": [...], "total": await sum_amounts(items)}}`.
 
 Reply with ONLY a fenced ```python code block and nothing else.\
 """
@@ -463,25 +472,49 @@ async def phase2_generate_and_execute(
 
         log.phase2_code(attempt, code)
 
-        # Compile — catches syntax and type errors before running.
-        try:
-            m = Monty(code, type_check=True, type_check_stubs=tools.MONTY_TOOLS)
-        except MontyError as exc:
-            last_error = f"Monty compile error: {exc}"
+        # Deterministic pre-checks: catch forbidden patterns before compilation.
+        if re.search(r"\bdef\s+\w", code):
+            last_error = (
+                "Code contains a `def` or `async def` statement, which is forbidden. "
+                "All logic must be written as flat top-level async code. "
+                "Move the function body inline and use `await` directly."
+            )
+            log.phase2_error(attempt, last_error)
+        elif re.search(r"\bnext\s*\(", code):
+            last_error = (
+                "Code uses `next()`, which is not available. "
+                "Find the first match with a `for` loop and `break` instead."
+            )
             log.phase2_error(attempt, last_error)
         else:
-            # Execute inside the sandbox with the real tool functions as callbacks.
+            # Compile — catches syntax and type errors before running.
             try:
-                t0 = time.monotonic()
-                result = await m.run_async(external_functions=tools.TOOL_FUNCTIONS)
-                code_seconds = time.monotonic() - t0
-                result_json = json.dumps(result, indent=2, default=str)
-                log.phase2_result(result_json)
-                log.record_phase2_code(code_seconds)
-                return result_json
-            except MontyRuntimeError as exc:
-                last_error = f"Monty runtime error: {exc}"
+                m = Monty(code, type_check=True, type_check_stubs=tools.MONTY_TOOLS)
+            except MontyError as exc:
+                last_error = f"Monty compile error: {exc}"
                 log.phase2_error(attempt, last_error)
+            else:
+                # Execute inside the sandbox with the real tool functions as callbacks.
+                try:
+                    t0 = time.monotonic()
+                    result = await m.run_async(external_functions=tools.TOOL_FUNCTIONS)
+                    code_seconds = time.monotonic() - t0
+                    if result is None:
+                        last_error = (
+                            "Code returned null. The last expression must be a dict or list — "
+                            "not None. This usually means all logic was wrapped inside a "
+                            "`def` or `async def` that was never called, or the final line "
+                            "was an assignment rather than a bare expression."
+                        )
+                        log.phase2_error(attempt, last_error)
+                    else:
+                        result_json = json.dumps(result, indent=2, default=str)
+                        log.phase2_result(result_json)
+                        log.record_phase2_code(code_seconds)
+                        return result_json
+                except MontyRuntimeError as exc:
+                    last_error = f"Monty runtime error: {exc}"
+                    log.phase2_error(attempt, last_error)
 
         if attempt < _MAX_CODE_RETRIES:
             print(

@@ -136,6 +136,19 @@ async def get_expenses(user_id: int, quarter: str, category: str) -> dict[str, A
     }
 
 
+async def sum_amounts(items: list[dict[str, Any]], field: str = "amount") -> float:
+    """Sum a numeric field across a list of dicts.
+
+    Args:
+        items: A list of dicts each containing the field to sum (e.g. expense records).
+        field: The key whose values are summed (default: 'amount').
+
+    Returns:
+        The sum as a float.
+    """
+    return sum(float(item[field]) for item in items)
+
+
 async def get_custom_budget(user_id: int) -> dict[str, Any] | None:
     """Get the custom budget for a team member, if one exists.
 
@@ -161,6 +174,7 @@ TOOL_FUNCTIONS: dict[str, Any] = {
     "get_team_members": get_team_members,
     "get_expenses": get_expenses,
     "get_custom_budget": get_custom_budget,
+    "sum_amounts": sum_amounts,
 }
 
 
@@ -267,6 +281,8 @@ def build_openai_tools(*fns: Any) -> list[dict[str, Any]]:
         for name, param in sig.parameters.items():
             json_type = _hint_to_json_type(hints.get(name, str))
             prop: dict[str, Any] = {"type": json_type}
+            if json_type == "array":
+                prop["items"] = {"type": "object"}
             if name in param_docs:
                 prop["description"] = param_docs[name]
             properties[name] = prop
@@ -331,7 +347,9 @@ def build_type_stubs(*fns: Any) -> str:
 
 # Build once at import time so callers just reference the constants.
 OPENAI_TOOLS: list[dict[str, Any]] = build_openai_tools(
-    get_team_members, get_expenses, get_custom_budget
+    get_team_members, get_expenses, get_custom_budget, sum_amounts
 )
 
-MONTY_TOOLS: str = build_type_stubs(get_team_members, get_expenses, get_custom_budget)
+MONTY_TOOLS: str = build_type_stubs(
+    get_team_members, get_expenses, get_custom_budget, sum_amounts
+)

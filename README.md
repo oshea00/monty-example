@@ -345,3 +345,119 @@ model does not over-fetch defensively.
 **Note:** I have left external_tools.py with the misleading elements described
 above for this example to help illustrate the need for good hygiene around tool
 function documentation and type hints.
+
+---
+
+### Failure 3 — Logic wrapped in an uncalled function (silent null)
+
+**Prompt:** *"itemize member's expenses that have 'flight' in the description"*
+
+The generated code placed all fetching and filtering logic inside an
+`async def main()` function but never called it:
+
+```python
+import asyncio
+
+async def main():
+    user_ids = [1, 2, 3, 4, 5]
+    expenses_results = await asyncio.gather(
+        *[get_expenses(user_id, 'Q3', 'travel') for user_id in user_ids]
+    )
+    flight_expenses = []
+    for result in expenses_results:
+        for expense in result['expenses']:
+            if 'flight' in expense['description'].lower():
+                flight_expenses.append({...})
+    flight_expenses  # ← inside the function body, never reached
+```
+
+From Monty's perspective, the top-level code was a single `async def`
+statement — a declaration with no value.  The sandbox returned `null`
+without error.  Phase 3 received `null` and faithfully reported that no
+flight expenses existed.
+
+This failure is particularly insidious because the retry loop only triggers
+on exceptions.  A silent `null` passes straight through to Phase 3.
+
+**Fixes applied (two layers):**
+
+1. **Prompt hardening** — The code-gen system prompt was strengthened from
+   the vague *"do not define functions"* to an explicit prohibition:
+   *"NEVER use `def` or `async def` — not even a helper. Every `await` must
+   appear at the top level."*
+
+2. **Deterministic pre-check** — Before compilation, the generated code is
+   scanned for the pattern `\bdef\s+\w`.  If found, the attempt is rejected
+   immediately with a clear error message fed back to the model, without
+   ever running the code:
+
+   ```python
+   if re.search(r"\bdef\s+\w", code):
+       last_error = (
+           "Code contains a `def` or `async def` statement, which is forbidden. "
+           "All logic must be written as flat top-level async code."
+       )
+   ```
+
+3. **Null-result guard** — Even if a future pattern produces `None` without
+   defining a function (e.g. the last line is an assignment), the executor
+   now rejects `None` as a retriable error rather than passing it to Phase 3.
+
+**Broader principle:** prompt rules alone are insufficient for constraints that
+have a clear syntactic signature.  Pair each important rule with a
+deterministic code scan so violations are caught before they silently corrupt
+results.  Other candidates for the same treatment: `next()` (not available in
+Monty's builtins — scan for `\bnext\s*\(`), `return` statements at the top
+level, and bare `import` of third-party libraries.
+
+---
+
+### Failure 4 — LLM arithmetic in Phase 3 produces wrong totals
+
+**Prompt:** *"itemize member's expenses that have 'flight' in the description"*
+(same prompt as Failure 3, different manifestation once the null was fixed)
+
+After the null fix, Phase 2 correctly returned a list of 15 flight expense
+items.  Phase 3 was then asked to present the results and computed the total
+in prose — but LLMs are unreliable at arithmetic.  Across multiple runs the
+same 15 items produced totals of $8,530, $9,370, and $11,950 depending on
+the run, when the correct answer is $10,510.
+
+**Root cause:** Phase 3 was doing the sum itself from the raw item list rather
+than reading a pre-computed value from the Phase 2 result.
+
+**Fix — add a bookkeeping tool and require its use:**
+
+A `sum_amounts` external function was added to `external_tools.py`:
+
+```python
+async def sum_amounts(items: list[dict[str, Any]], field: str = "amount") -> float:
+    """Sum a numeric field across a list of dicts."""
+    return sum(float(item[field]) for item in items)
+```
+
+Because it is registered in `TOOL_FUNCTIONS`, `OPENAI_TOOLS`, and `MONTY_TOOLS`,
+it is visible to Phase 2's code generator as a callable.  A new code-gen rule
+was added to the system prompt:
+
+> *"Always compute totals and subtotals using `sum_amounts` and include them in
+> the returned dict or list.  Never leave arithmetic to the final answer phase —
+> if you return a list of expense items, wrap it:
+> `{"items": [...], "total": await sum_amounts(items)}`."*
+
+With this in place Phase 2 returns, for example:
+
+```json
+{
+  "items": [...],
+  "total": 10510.0
+}
+```
+
+Phase 3 reads `10510.0` directly — no arithmetic required, no rounding errors,
+no hallucinated sums.
+
+**Broader principle:** any value that requires exact computation (sums, counts,
+percentages, date arithmetic) should be calculated in Python by Phase 2 and
+surfaced as a named field in the return value.  Phase 3's role is narration, not
+calculation.
