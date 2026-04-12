@@ -258,7 +258,7 @@ class SessionLog:
 
         self._reset_turn()
 
-    def close(self) -> None:
+    def close(self, history: list[dict[str, str]]) -> None:
         n = self._s_turns
         self._write(
             f"\nSESSION TOTALS — {n} turn{'s' if n != 1 else ''} | "
@@ -267,6 +267,13 @@ class SessionLog:
             f"{self._s_llm:.2f}s LLM | "
             f"{self._s_code:.3f}s code\n"
         )
+        # Conversation history section
+        self._write(f'\n{"═" * 60}\nCONVERSATION HISTORY\n{"═" * 60}\n')
+        for i, msg in enumerate(history):
+            label = "USER" if msg["role"] == "user" else "ASSISTANT"
+            turn_num = i // 2 + 1
+            self._write(f"\n[Turn {turn_num}] {label}:\n{msg['content']}\n")
+        self._write(f'{"═" * 60}\n')
         self._write(
             f'\n=== Session ended {datetime.datetime.now().isoformat(timespec="seconds")} ===\n'
         )
@@ -639,7 +646,7 @@ async def main() -> None:
 
             print(f"\nAssistant: {reply}\n")
     finally:
-        log.close()
+        log.close(conversation.history)
 
 
 if __name__ == "__main__":
