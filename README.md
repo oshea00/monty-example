@@ -334,6 +334,6 @@ combinations.
 parameter is accepted but not yet filtering, document that clearly so the
 model does not over-fetch defensively.
 
-**Note:** I have left the external_tools.py with the misleading elements described
-above for this example to help illustrate the need for good hygien around tool
+**Note:** I have left external_tools.py with the misleading elements described
+above for this example to help illustrate the need for good hygiene around tool
 function documentation and type hints.
