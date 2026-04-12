@@ -21,7 +21,8 @@ Phase 1 — Tool discovery (and direct answer when no tools needed)
 Phase 2 — Code generation + Monty execution
     Ask the model to write Python code using the full set of tool type stubs.
     The model decides for itself which functions to call and how to combine
-    results — loops, parallel asyncio.gather calls, aggregations.
+    results.
+
     Execute code in the Monty sandbox → calls back to real host functions.
     If the generated code fails to compile or run, the error is fed back
     to the model and it retries (up to 4 attempts).
@@ -38,22 +39,13 @@ prompt and the assistant reply — keeping context compact.
 
 ## Why this approach instead of direct tool calling?
 
-Standard OpenAI tool calling executes one tool call at a time, round-tripping
-to the model after each result.  The Monty approach lets the model write
-arbitrarily complex orchestration logic — loops, parallel `asyncio.gather`
-calls, aggregations — that runs entirely in the sandbox.  The host only sees
-the final computed result, not every intermediate call.  This makes it
-practical for questions that require fetching data for every team member in
-parallel and then doing analysis over the combined results.
+Standard OpenAI tool calling executes one tool call at a time, round-tripping to the model after each result. The Monty approach lets the model write arbitrarily complex orchestration logic — loops, parallel asyncio.gather calls, aggregations — that runs entirely in the sandbox. The host executes and mediates any intermediate external calls, but the model only needs to see the final computed result. This makes it practical for questions that require fetching data for every team member in parallel and then doing analysis over the combined results using an LLM model.
 
-Phase 1 also checks whether the data is already present in the conversation
-history before triggering a code-generation round-trip.  When no tools are
-needed, Phase 1's response is used as the final answer directly — the turn
-costs a single LLM call.  Follow-up questions such as "reformat that as a
-table" or "what is the total?" are answered this way, saving tokens and
-latency compared to making a redundant second call.
+The Monty VM does not have direct access to networking or OS I/O, although I/O can be handled via an OS-mediated callback similar to a “mount”. Monty can call a set of external functions it is given access to, and those functions can do networking and I/O calls.
 
-## Session log
+The resulting tool executions are often faster because the LLM doesn’t have to round-trip on every intermediate step: the orchestration logic is in Monty code, and the host can run the dispatch loop without involving the model.
+
+## Session logging
 
 Every run writes a timestamped `session_YYYYMMDD_HHMMSS.log` file recording:
 
@@ -260,9 +252,6 @@ latency (40.08s) while code execution remained negligible (0.013s).
 
 ## When code generation goes wrong
 
-The session log is the primary diagnostic tool.  Two characteristic failure
-modes are shown below, both from a single session.
-
 ### Failure 1 — Assignment statement as last expression
 
 **Prompt:** *"get the first expense line for Bob Smith and tell me the items on it"*
@@ -344,3 +333,7 @@ combinations.
 **Takeaway:** keep tool semantics honest in docstrings and stubs.  If a
 parameter is accepted but not yet filtering, document that clearly so the
 model does not over-fetch defensively.
+
+**Note:** I have left the external_tools.py with the misleading elements described
+above for this example to help illustrate the need for good hygien around tool
+function documentation and type hints.
