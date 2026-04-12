@@ -54,7 +54,10 @@ The Monty VM does not have direct access to networking or OS I/O, although I/O c
 The resulting tool executions are often faster because the LLM doesn’t have to round-trip on every intermediate step: the orchestration logic is in Monty code, and the host can run the dispatch loop without involving the model.
 
 ## Demo session
-<video src="images/output.mp4" controls width="800"></video>
+
+Click the preview to open the full MP4:
+
+[![Terminal demo preview](images/demo-preview.gif)](images/output.mp4)
 
 ## Session logging
 
