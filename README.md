@@ -182,7 +182,7 @@ Assistant: Here are all expenses containing "flight," organised by member:
 
 **Turn: reformat as a markdown table**
 
-Phase 1 recognises the data is already in the conversation history —
+Phase 1 recognizes the data is already in the conversation history —
 no tools are called, no code is generated, and Phase 1 answers directly:
 
 ```
