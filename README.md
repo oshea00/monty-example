@@ -116,6 +116,50 @@ export OPENAI_API_KEY=sk-...
 python main.py
 ```
 
+## Web UI
+
+The `feature/web-ui` branch adds a browser interface that shows the three-phase
+conversation flow in real time — tool discovery, generated code, sandbox
+execution, and the final answer — using the
+[AgentTrace](https://github.com/anthropics/agenttrace-ui) step visualization
+component.
+
+**Architecture:**
+- `server.py` — FastAPI backend that wraps the same pipeline as the CLI and
+  streams progress as Server-Sent Events
+- `ui/` — Next.js 15 app with a custom hook consuming the SSE stream; no
+  Vercel AI SDK dependency
+- `docker-compose.yml` — two-service setup: Python API on port 8000, UI on
+  port 3000
+
+**Run with Docker Compose (recommended):**
+
+```bash
+export OPENAI_API_KEY=sk-...
+docker compose up --build
+# open http://localhost:3000
+```
+
+**Run locally (two terminals):**
+
+```bash
+# Terminal 1 — API server
+uv pip install -r requirements-server.txt
+export OPENAI_API_KEY=sk-...
+uvicorn server:app --reload --port 8000
+
+# Terminal 2 — UI dev server
+cd ui
+npm install
+npm run dev
+# open http://localhost:3000
+```
+
+The UI proxies `/api/*` to the Python backend, so no CORS configuration is
+needed. Each chat message streams step-by-step events: Phase 1 tool discovery,
+one or more Phase 2 code generation + Monty execution attempts (retries appear
+as separate steps with error state), and Phase 3 final answer.
+
 ## Sample session
 
 The following is extracted from an actual session log.  It shows three
