@@ -9,5 +9,5 @@ RUN uv pip install --system -r requirements.txt -r requirements-server.txt
 
 COPY main.py external_tools.py server.py ./
 
-EXPOSE 8000
-CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]
+EXPOSE 8001
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8001"]

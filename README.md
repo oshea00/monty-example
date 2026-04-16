@@ -129,7 +129,7 @@ component.
   streams progress as Server-Sent Events
 - `ui/` — Next.js 15 app with a custom hook consuming the SSE stream; no
   Vercel AI SDK dependency
-- `docker-compose.yml` — two-service setup: Python API on port 8000, UI on
+- `docker-compose.yml` — two-service setup: Python API on port 8001, UI on
   port 3000
 
 **Run with Docker Compose (recommended):**
@@ -146,7 +146,7 @@ docker compose up --build
 # Terminal 1 — API server
 uv pip install -r requirements-server.txt
 export OPENAI_API_KEY=sk-...
-uvicorn server:app --reload --port 8000
+uvicorn server:app --reload --port 8001
 
 # Terminal 2 — UI dev server
 cd ui
