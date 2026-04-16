@@ -160,6 +160,11 @@ needed. Each chat message streams step-by-step events: Phase 1 tool discovery,
 one or more Phase 2 code generation + Monty execution attempts (retries appear
 as separate steps with error state), and Phase 3 final answer.
 
+**Attribution:** the step visualization components (`ui/src/agenttrace/`) are
+copied from [agenttrace-ui](https://github.com/NikitaKharya09/agenttrace-ui)
+by [Nikita Kharya](https://github.com/NikitaKharya09), used under the
+[MIT License](https://github.com/NikitaKharya09/agenttrace-ui/blob/main/LICENSE).
+
 ## Sample session
 
 The following is extracted from an actual session log.  It shows three
