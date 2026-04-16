@@ -8,3 +8,8 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Web UI
+ui/node_modules/
+ui/.next/
+session_*.log
