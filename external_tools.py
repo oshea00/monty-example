@@ -15,6 +15,7 @@ from typing import Any, Union, get_type_hints
 
 # ---------------------------------------------------------------------------
 # Data
+# CUSTOMIZE: sample data. Replace the three dicts below with queries to your real data source (DB, HTTP API, CSV, etc.).
 # ---------------------------------------------------------------------------
 
 team_members = [
@@ -100,6 +101,8 @@ custom_budgets: dict[int, dict[str, Any]] = {
 
 # ---------------------------------------------------------------------------
 # Tool functions
+# CUSTOMIZE: each async function here becomes a tool callable from sandboxed Phase 2 code.
+# Replace with your own; MONTY_TOOLS and OPENAI_TOOLS are auto-derived from signatures.
 # ---------------------------------------------------------------------------
 
 

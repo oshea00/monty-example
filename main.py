@@ -43,8 +43,10 @@ from pydantic_monty import Monty, MontyError, MontyRuntimeError
 # Configuration
 # ---------------------------------------------------------------------------
 
+# CUSTOMIZE: swap for your provider/model; consider reading from env so deploys can override.
 MODEL = "gpt-4o-mini"
 
+# CUSTOMIZE: Phase 1 system prompt. Reword for your domain; this prompt decides whether tools are needed.
 # System prompt used for Phase 1 (tool-discovery pass).
 _PHASE1_SYSTEM = (
     "You are a helpful assistant that analyses team expense data. "
@@ -61,6 +63,7 @@ _PHASE1_SYSTEM = (
     "because some are already in context."
 )
 
+# CUSTOMIZE: Phase 2 code-gen rules. Keep the sandbox constraints (no def, no next, no third-party imports); adapt data-shape guidance.
 # System prompt injected into Phase 2 to guide code generation.
 _CODE_GEN_SYSTEM = f"""\
 You are a Python code generator for a sandboxed interpreter.
@@ -100,6 +103,7 @@ Rules:
 Reply with ONLY a fenced ```python code block and nothing else.\
 """
 
+# CUSTOMIZE: Phase 3 system prompt. Tone and domain for the final natural-language answer.
 # System prompt for Phase 3 (final natural-language answer).
 _FINAL_SYSTEM = (
     "You are a helpful assistant analysing team expense data. "
@@ -113,6 +117,7 @@ _FINAL_SYSTEM = (
 # ---------------------------------------------------------------------------
 
 
+# CUSTOMIZE: plain-text log files under ./logs/. Swap for structured logging / telemetry in prod (JSON lines, OTel, etc.).
 class SessionLog:
     """Writes a timestamped, human-readable log of the session to disk.
 
@@ -298,6 +303,7 @@ class SessionLog:
 # ---------------------------------------------------------------------------
 
 
+# CUSTOMIZE: no history cap. For long-running sessions, truncate or summarise older turns to keep token usage bounded.
 @dataclass
 class Conversation:
     """Maintains the rolling message history for an ongoing dialogue.

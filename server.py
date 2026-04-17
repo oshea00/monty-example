@@ -34,6 +34,7 @@ from main import (
 
 app = FastAPI(title="monty-examples API")
 
+# CUSTOMIZE (prod): restrict allow_origins to your real frontend domain(s); consider an allowlist from env.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "http://ui:3000"],
@@ -41,6 +42,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# CUSTOMIZE (prod): in-memory session store. OK for single-container demo; swap for Redis/DB for multi-replica or persistence across restarts.
 # In-memory session store: session_id → (Conversation, SessionLog, AsyncOpenAI)
 _sessions: dict[str, tuple[Conversation, SessionLog, AsyncOpenAI]] = {}
 
@@ -383,6 +385,7 @@ async def delete_session(session_id: str) -> dict:
     return {"ok": True}
 
 
+# CUSTOMIZE (prod): add auth (bearer token / API key), rate limiting, and message validation here — and on POST/DELETE /api/sessions.
 @app.post("/api/chat")
 async def chat(req: ChatRequest) -> StreamingResponse:
     entry = _sessions.get(req.session_id)

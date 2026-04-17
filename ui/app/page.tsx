@@ -28,6 +28,8 @@ const FORMATTERS: Record<string, StepFormatter> = {
   },
 };
 
+// CUSTOMIZE: starter prompts shown in the empty state. Also review the header title,
+// empty-state copy, and textarea placeholder below — all domain-specific.
 const EXAMPLE_QUESTIONS = [
   "How much did each team member spend in Q3?",
   "Who went over budget this year?",
