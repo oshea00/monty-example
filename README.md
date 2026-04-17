@@ -120,7 +120,7 @@ python main.py
 
 A browser interface shows the three-phase conversation flow in real time —
 tool discovery, generated code, sandbox execution, and the final answer —
-using the [AgentTrace](https://github.com/anthropics/agenttrace-ui) step
+using the [AgentTrace](https://github.com/NikitaKharya09/agenttrace-ui) step
 visualization component.
 
 **Architecture:**
