@@ -191,20 +191,22 @@ classDiagram
     +string text
   }
   class ToolPart {
-    +string type  "tool-{stepName}"
+    +string type
     +string toolCallId
     +Record input
-    +state: input-available | output-available | output-error
+    +string state
     +unknown output
   }
+  note for ToolPart "type = tool-{stepName}; state = input-available | output-available | output-error"
   MessagePart <|-- TextPart
   MessagePart <|-- ToolPart
 
   class ChatMessage {
     +string id
-    +role: user | assistant
+    +string role
     +MessagePart[] parts
   }
+  note for ChatMessage "role = user | assistant"
   ChatMessage "1" o-- "many" MessagePart
 ```
 
