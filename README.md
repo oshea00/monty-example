@@ -118,11 +118,10 @@ python main.py
 
 ## Web UI
 
-The `feature/web-ui` branch adds a browser interface that shows the three-phase
-conversation flow in real time — tool discovery, generated code, sandbox
-execution, and the final answer — using the
-[AgentTrace](https://github.com/anthropics/agenttrace-ui) step visualization
-component.
+A browser interface shows the three-phase conversation flow in real time —
+tool discovery, generated code, sandbox execution, and the final answer —
+using the [AgentTrace](https://github.com/anthropics/agenttrace-ui) step
+visualization component.
 
 **Architecture:**
 - `server.py` — FastAPI backend that wraps the same pipeline as the CLI and
