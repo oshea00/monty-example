@@ -69,12 +69,88 @@ function PauseIcon({ color = "#fb923c", size = 14 }: { color?: string; size?: nu
 
 // === TIER 3: STEP DETAIL ===
 
+type CodeResult = { code: string; status?: string; error?: string };
+
+function CodeResultBlock({ result }: { result: CodeResult }) {
+  const [expanded, setExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const lineCount = result.code ? result.code.split("\n").length : 0;
+  const isError = result.status === "error";
+  const statusColor = isError ? "#f87171" : "#4ade80";
+
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(result.code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1200);
+    } catch {
+      // clipboard unavailable — silent no-op
+    }
+  };
+
+  const btnStyle: React.CSSProperties = {
+    fontSize: 11,
+    padding: "2px 8px",
+    borderRadius: 4,
+    border: "1px solid rgba(255,255,255,0.1)",
+    background: "rgba(255,255,255,0.04)",
+    color: "#cbd5e1",
+    cursor: "pointer",
+    fontFamily: "inherit",
+  };
+
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color: statusColor, textTransform: "uppercase", letterSpacing: 0.5 }}>
+          {result.status ?? "ok"}
+        </span>
+        <span style={{ fontSize: 11, color: "#64748b" }}>{lineCount} line{lineCount === 1 ? "" : "s"}</span>
+        <div style={{ marginLeft: "auto", display: "flex", gap: 6 }}>
+          <button type="button" onClick={onCopy} style={btnStyle}>{copied ? "Copied" : "Copy"}</button>
+          <button type="button" onClick={() => setExpanded(e => !e)} style={btnStyle}>{expanded ? "Hide" : "Show"}</button>
+        </div>
+      </div>
+      {isError && result.error && (
+        <div style={{ fontSize: 12, color: "#f87171", marginBottom: 6, whiteSpace: "pre-wrap" }}>
+          {result.error}
+        </div>
+      )}
+      {expanded && (
+        <pre style={{
+          margin: 0,
+          padding: "10px 12px",
+          background: "rgba(255,255,255,0.04)",
+          border: "1px solid rgba(255,255,255,0.06)",
+          borderRadius: 6,
+          fontSize: 12,
+          lineHeight: 1.5,
+          fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+          color: "#cbd5e1",
+          whiteSpace: "pre",
+          overflowX: "auto",
+          overflowY: "auto",
+          maxHeight: 400,
+        }}>
+          <code>{result.code}</code>
+        </pre>
+      )}
+    </div>
+  );
+}
+
 function StepDetail({ step, formatters }: { step: AgentStep; formatters?: Record<string, StepFormatter> }) {
   const summary = getSummary(step, formatters);
   const reasoning = getReasoning(step, formatters);
   const duration = step.startedAt && step.completedAt
     ? step.completedAt - step.startedAt < 1000 ? `${step.completedAt - step.startedAt}ms` : `${((step.completedAt - step.startedAt) / 1000).toFixed(1)}s`
     : null;
+
+  const codeResult: CodeResult | null =
+    step.result && typeof step.result === "object" && typeof (step.result as any).code === "string"
+      ? (step.result as CodeResult)
+      : null;
 
   return (
     <div style={{ padding: "12px 16px", background: "rgba(255,255,255,0.03)", borderRadius: 8, fontSize: 13, lineHeight: 1.6, border: "1px solid rgba(255,255,255,0.06)" }}>
@@ -88,7 +164,10 @@ function StepDetail({ step, formatters }: { step: AgentStep; formatters?: Record
         <code style={{ fontSize: 11, fontFamily: "monospace", color: "#94a3b8", background: "rgba(255,255,255,0.04)", padding: "2px 6px", borderRadius: 4, wordBreak: "break-all" }}>{JSON.stringify(step.args)}</code>
         {step.status === "complete" && step.result !== undefined && (
           <><span style={{ color: "#64748b" }}>Result</span>
-          <code style={{ fontSize: 11, fontFamily: "monospace", color: "#94a3b8", background: "rgba(255,255,255,0.04)", padding: "2px 6px", borderRadius: 4, wordBreak: "break-all", maxHeight: 100, overflow: "auto", display: "block" }}>{JSON.stringify(step.result, null, 2)}</code></>
+          {codeResult
+            ? <CodeResultBlock result={codeResult} />
+            : <code style={{ fontSize: 11, fontFamily: "monospace", color: "#94a3b8", background: "rgba(255,255,255,0.04)", padding: "2px 6px", borderRadius: 4, wordBreak: "break-all", maxHeight: 100, overflow: "auto", display: "block" }}>{JSON.stringify(step.result, null, 2)}</code>}
+          </>
         )}
         {duration && (<><span style={{ color: "#64748b" }}>Time</span><span style={{ color: "#cbd5e1" }}>{duration}</span></>)}
         {step.status === "error" && (<><span style={{ color: "#f87171" }}>Error</span><span style={{ color: "#f87171" }}>{step.result ? JSON.stringify(step.result) : "Tool execution failed"}</span></>)}
