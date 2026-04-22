@@ -27,6 +27,7 @@ tight as the conversation grows.
 
 import asyncio
 import datetime
+import io
 import json
 import re
 import sys
@@ -44,7 +45,7 @@ from pydantic_monty import Monty, MontyError, MontyRuntimeError
 # ---------------------------------------------------------------------------
 
 # CUSTOMIZE: swap for your provider/model; consider reading from env so deploys can override.
-MODEL = "gpt-4o-mini"
+MODEL = "gpt-4.1"
 
 # CUSTOMIZE: Phase 1 system prompt. Reword for your domain; this prompt decides whether tools are needed.
 # System prompt used for Phase 1 (tool-discovery pass).
@@ -127,10 +128,15 @@ class SessionLog:
     by ``close()``.
     """
 
-    def __init__(self) -> None:
-        ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.path = Path(f"session_{ts}.log")
-        self._file = self.path.open("w", encoding="utf-8")
+    def __init__(self, stream: io.TextIOBase | None = None) -> None:
+        if stream is not None:
+            self._file = stream
+            self._owns_file = False
+        else:
+            ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            self.path = Path(f"session_{ts}.log")
+            self._file = self.path.open("w", encoding="utf-8")
+            self._owns_file = True
         self._write(
             f'=== Session started {datetime.datetime.now().isoformat(timespec="seconds")} ===\n'
         )
@@ -294,8 +300,9 @@ class SessionLog:
         self._write(
             f'\n=== Session ended {datetime.datetime.now().isoformat(timespec="seconds")} ===\n'
         )
-        self._file.close()
-        print(f"\nSession log saved to: {self.path}")
+        if self._owns_file:
+            self._file.close()
+            print(f"\nSession log saved to: {self.path}")
 
 
 # ---------------------------------------------------------------------------

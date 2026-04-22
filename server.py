@@ -8,6 +8,7 @@ modified; this module imports its phase functions and helpers directly.
 
 import json
 import re
+import sys
 import time
 import uuid
 from typing import AsyncIterator
@@ -371,7 +372,7 @@ async def create_session() -> dict:
     session_id = str(uuid.uuid4())
     client = AsyncOpenAI()
     conversation = Conversation()
-    log = SessionLog()
+    log = SessionLog(stream=sys.stdout)
     _sessions[session_id] = (conversation, log, client)
     return {"session_id": session_id}
 

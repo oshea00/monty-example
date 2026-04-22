@@ -226,7 +226,7 @@ export function AgentTrace({
 
       {/* Final answer text (after all tool calls complete) */}
       {remainingText && !isStreaming && (
-        <div style={{ padding: "10px 0", fontSize: 14, lineHeight: 1.7 }}>
+        <div style={{ padding: "10px 0", fontSize: 14, lineHeight: 1.7, fontFamily: "var(--font-roboto-mono), 'Roboto Mono', monospace" }}>
           {renderMarkdown(remainingText)}
         </div>
       )}
@@ -236,7 +236,7 @@ export function AgentTrace({
         cleanParts
           .filter((p: any) => p.type === "text" && p.text?.trim())
           .map((p: any, i: number) => (
-            <div key={i} style={{ padding: "10px 0", fontSize: 14, lineHeight: 1.7 }}>
+            <div key={i} style={{ padding: "10px 0", fontSize: 14, lineHeight: 1.7, fontFamily: "var(--font-roboto-mono), 'Roboto Mono', monospace" }}>
               {renderMarkdown(p.text)}
             </div>
           ))}
