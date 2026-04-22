@@ -101,7 +101,7 @@ function CodeResultBlock({ result }: { result: CodeResult }) {
   };
 
   return (
-    <div>
+    <div style={{ minWidth: 0 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
         <span style={{ fontSize: 11, fontWeight: 600, color: statusColor, textTransform: "uppercase", letterSpacing: 0.5 }}>
           {result.status ?? "ok"}
