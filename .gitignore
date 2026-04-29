@@ -13,3 +13,5 @@ wheels/
 ui/node_modules/
 ui/.next/
 session_*.log
+
+*.tsbuildinfo

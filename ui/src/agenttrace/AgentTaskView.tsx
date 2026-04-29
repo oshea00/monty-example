@@ -8,6 +8,11 @@
 import { useState, useEffect } from "react";
 import type { AgentStep, StepFormatter } from "./useAgentSteps";
 import { getSummary, getReasoning } from "./useAgentSteps";
+import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
+import python from "react-syntax-highlighter/dist/esm/languages/prism/python";
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+
+SyntaxHighlighter.registerLanguage("python", python);
 
 export type ApprovalGateData = {
   toolName: string;
@@ -118,23 +123,25 @@ function CodeResultBlock({ result }: { result: CodeResult }) {
         </div>
       )}
       {expanded && (
-        <pre style={{
-          margin: 0,
-          padding: "10px 12px",
-          background: "rgba(255,255,255,0.04)",
-          border: "1px solid rgba(255,255,255,0.06)",
-          borderRadius: 6,
-          fontSize: 12,
-          lineHeight: 1.5,
-          fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-          color: "#cbd5e1",
-          whiteSpace: "pre",
-          overflowX: "auto",
-          overflowY: "auto",
-          maxHeight: 400,
-        }}>
-          <code>{result.code}</code>
-        </pre>
+        <SyntaxHighlighter
+          language="python"
+          style={oneDark}
+          customStyle={{
+            margin: 0,
+            padding: "10px 12px",
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.06)",
+            borderRadius: 6,
+            fontSize: 12,
+            lineHeight: 1.5,
+            overflowX: "auto",
+            overflowY: "auto",
+            maxHeight: 400,
+          }}
+          codeTagProps={{ style: { fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" } }}
+        >
+          {result.code}
+        </SyntaxHighlighter>
       )}
     </div>
   );
